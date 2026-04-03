@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WOLF LABS | HW: Body & Mind</title>
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Outfit:wght@300;400;600;700;800&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- WOLF LABS HOMEWORK ENGINE (BODY & MIND EDITION) --- */
+        :root {
+            --bg-base: #020617; /* Deep Slate Blue */
+            --brand-main: #0ea5e9; /* Sky Blue */
+            --accent: #0ea5e9; /* Sky Blue */
+            --accent-glow: rgba(14, 165, 233, 0.4);
+            --correct: #10b981; /* Emerald */
+            --incorrect: #ef4444; /* Red */
+            --text-main: #FFFFFF;
+            --glass-bg: rgba(15, 23, 42, 0.95);
+            --glass-border: rgba(14, 165, 233, 0.2); 
+            --font-display: 'Montserrat', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+            --font-code: 'Fira Code', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            overflow-y: auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 50px;
+            scroll-behavior: smooth;
+        }
+
+        /* --- BACKGROUND --- */
+        .bg-image {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=800&auto=format&fit=crop');
+            background-size: cover; background-position: center;
+            opacity: 0.1; z-index: -2; filter: grayscale(20%) blur(2px);
+        }
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(2,6,23,0.85) 0%, rgba(2,6,23,1) 100%);
+            z-index: -1;
+        }
+
+        /* --- NAVBAR (MOBILE OPTIMIZED) --- */
+        .navbar {
+            display: flex; justify-content: center; align-items: center;
+            padding: 15px 20px; height: 70px;
+            background: rgba(2,6,23,0.9); backdrop-filter: blur(20px);
+            position: sticky; top: 0; width: 100%; z-index: 100;
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+        .logo { color: #fff; font-family: var(--font-display); font-size: 1.2rem; font-weight: 900; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;}
+        .logo span { color: #000; font-family: var(--font-body); font-weight: 800; font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; background: var(--accent); letter-spacing: 1px;}
+
+        /* --- CARD STACK LAYOUT --- */
+        .hw-container {
+            width: 100%; max-width: 600px; margin: 0 auto;
+            padding: 30px 20px;
+            display: flex; flex-direction: column; gap: 40px;
+        }
+
+        .hw-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-top: 2px solid var(--brand-main);
+            border-radius: 20px; padding: 35px 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            opacity: 0; 
+            transform: scale(0.95) translateY(40px);
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            display: none; /* Hidden completely until unlocked */
+            flex-direction: column;
+            position: relative;
+        }
+
+        .hw-card.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        
+        .hw-card.completed {
+            border-color: var(--correct);
+            border-top-color: var(--correct);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15);
+        }
+
+        .card-badge {
+            position: absolute; top: -12px; left: 20px;
+            background: var(--brand-main); color: #000;
+            font-family: var(--font-code); font-size: 0.75rem; font-weight: 800;
+            padding: 5px 12px; border-radius: 6px; letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.4);
+        }
+        .hw-card.completed .card-badge { background: var(--correct); color: #000; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);}
+
+        /* --- TYPOGRAPHY --- */
+        h2 { font-family: var(--font-display); font-size: 1.8rem; color: #fff; margin-bottom: 15px; margin-top: 10px; line-height: 1.2;}
+        p { font-size: 1.15rem; color: #d1d5db; margin-bottom: 20px; line-height: 1.6;}
+        strong { color: #fff; }
+        
+        /* --- BUTTONS --- */
+        .btn-start { 
+            -webkit-appearance: none; appearance: none; outline: none; width: 100%;
+            padding: 18px 20px; border: none; border-radius: 12px; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; background: var(--accent); color: #000; box-shadow: 0 10px 20px var(--accent-glow); font-family: var(--font-body); margin-top: 10px; text-transform: uppercase;
+        }
+        .btn-start:active { transform: scale(0.96); }
+
+        .opt-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(14, 165, 233, 0.3);
+            color: white; padding: 16px 20px; border-radius: 12px; font-size: 1.1rem;
+            cursor: pointer; text-align: left; transition: all 0.3s ease; font-weight: 500;
+            display: flex; align-items: center; gap: 15px; font-family: var(--font-body);
+            margin-bottom: 12px; width: 100%;
+        }
+        .opt-btn:active { transform: scale(0.98); }
+        .opt-btn.correct { background: rgba(16, 185, 129, 0.2) !important; border-color: var(--correct) !important; color: white; }
+        .opt-btn.error { background: rgba(239, 68, 68, 0.2) !important; border-color: var(--incorrect) !important; animation: shake 0.4s; }
+
+        /* --- BUG HUNT (INTERACTIVE SENTENCE) --- */
+        .bug-sentence {
+            background: rgba(0,0,0,0.6); padding: 25px 20px; border-radius: 16px;
+            font-size: 1.4rem; line-height: 1.8; text-align: center; border: 1px dashed var(--glass-border);
+            margin-bottom: 20px;
+        }
+        .bug-word {
+            display: inline-block; padding: 2px 6px; margin: 2px; border-radius: 6px;
+            cursor: pointer; transition: 0.2s; font-weight: 600; border-bottom: 2px solid transparent;
+        }
+        .bug-word:hover { background: rgba(255,255,255,0.1); }
+        .bug-word.wrong-click { color: var(--incorrect); border-bottom-color: var(--incorrect); animation: shake 0.4s; }
+        .bug-word.caught { color: #000; background: var(--correct); border-bottom-color: transparent; transform: scale(1.1); font-weight: 800;}
+
+        /* --- INTERACTIVE READING (CLOZE) --- */
+        .reading-box {
+            background: rgba(255,255,255,0.03); padding: 25px; border-radius: 16px;
+            font-size: 1.2rem; line-height: 1.8; border-left: 4px solid var(--accent);
+            margin-bottom: 25px; color: #e5e7eb; text-align: center;
+        }
+        .blank-space {
+            display: inline-block; min-width: 90px; height: 32px;
+            background: rgba(0,0,0,0.8); border: 1px dashed var(--accent);
+            border-radius: 6px; vertical-align: middle; margin: 0 5px;
+            text-align: center; line-height: 32px; color: var(--accent);
+            font-family: var(--font-code); font-size: 1rem; font-weight: 700;
+            transition: 0.3s; cursor: pointer;
+        }
+        .blank-space.filled {
+            background: rgba(16, 185, 129, 0.2); border: 1px solid var(--correct);
+            color: var(--correct); border-style: solid; pointer-events: none;
+        }
+        .word-pool { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .pool-chip {
+            padding: 10px 20px; background: rgba(14, 165, 233, 0.1); border: 1px solid var(--accent);
+            color: var(--accent); border-radius: 50px; font-weight: 600; cursor: pointer;
+            transition: 0.2s; font-family: var(--font-code);
+        }
+        .pool-chip:active { transform: scale(0.9); }
+        .pool-chip.selected { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent-glow); }
+        .pool-chip.used { opacity: 0; pointer-events: none; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        /* Confetti */
+        .confetti { position: absolute; width: 10px; height: 10px; background-color: var(--accent); z-index: 1000; animation: fall 3s linear infinite; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo"><i class="fa-solid fa-brain" style="color:var(--accent);"></i> WOLF LABS <span>HW</span></div>
+    </nav>
+
+    <!-- Main Stack -->
+    <main class="hw-container" id="hw-container">
+        
+        <!-- CARD 1: Briefing -->
+        <div class="hw-card active" id="card-1">
+            <span class="card-badge">MISSION BRIEFING</span>
+            <h2>Body & Mind 🧠</h2>
+            <p>Welcome to your solo mission! Let's test your knowledge about the human body, stress, and cause/effect grammar.</p>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <span style="background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; font-family: var(--font-code); color: #fff;"><i class="fa-solid fa-crosshairs" style="color:var(--brand-main);"></i> 15 TASKS</span>
+                <span style="background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 6px; font-size: 0.8rem; font-family: var(--font-code); color: #fff;"><i class="fa-solid fa-bolt" style="color:var(--accent);"></i> +1500 XP</span>
+            </div>
+            <button class="btn-start" onclick="completeCard('card-1', 'card-2')">START MISSION</button>
+        </div>
+
+        <!-- TASK 1 (MCQ) -->
+        <div class="hw-card" id="card-2">
+            <span class="card-badge">TASK 1: VOCABULARY</span>
+            <h2>The Body</h2>
+            <p>Which organ pumps blood throughout your entire body?</p>
+            <div class="options-list" data-attempts="0">
+                <button class="opt-btn" onclick="genericCorrectHW(this, false)"><i class="fa-solid fa-brain"></i> The Brain</button>
+                <button class="opt-btn" onclick="genericCorrectHW(this, true, 'btn-c2')"><i class="fa-solid fa-heart"></i> The Heart</button>
+                <button class="opt-btn" onclick="genericCorrectHW(this, false)"><i class="fa-solid fa-burger"></i> The Stomach</button>
+            </div>
+            <button class="btn-start" id="btn-c2" style="display:none;" onclick="completeCard('card-2', 'card-3')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 2 (Bug Hunt) -->
+        <div class="hw-card" id="card-3">
+            <span class="card-badge">TASK 2: BUG HUNT</span>
+            <h2>Find the Mistake</h2>
+            <p>Tap the <strong>INCORRECT</strong> verb. Remember the rule for "It".</p>
+            <div class="bug-sentence">
+                <span class="bug-word" onclick="catchBug(this, false)">My</span> 
+                <span class="bug-word" onclick="catchBug(this, false)">heart</span> 
+                <span class="bug-word" onclick="catchBug(this, true, 'beats', 'bug-fb-3', 'btn-c3')">beat</span> 
+                <span class="bug-word" onclick="catchBug(this, false)">fast.</span>
+            </div>
+            <p id="bug-fb-3" style="color: var(--correct); font-weight: bold; font-size: 1rem; display: none; text-align: center;"><i class="fa-solid fa-check-circle"></i> Correct! We say "My heart BEATS".</p>
+            <button class="btn-start" id="btn-c3" style="display:none;" onclick="completeCard('card-3', 'card-4')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 3 (Cloze) -->
+        <div class="hw-card" id="card-4">
+            <span class="card-badge">TASK 3: RECONSTRUCTION</span>
+            <h2>Feelings</h2>
+            <p>Tap a yellow word, then tap the empty box.</p>
+            <div class="reading-box">
+                I feel <span class="blank-space" data-target="overwhelmed" onclick="fillBlank(this, 'btn-c4')"></span> when I have too much work.
+            </div>
+            <div class="word-pool">
+                <button class="pool-chip" onclick="selectChip(this)">happy</button>
+                <button class="pool-chip" onclick="selectChip(this)">overwhelmed</button>
+                <button class="pool-chip" onclick="selectChip(this)">hungry</button>
+            </div>
+            <button class="btn-start" id="btn-c4" style="display:none;" onclick="completeCard('card-4', 'card-5')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 4 (MCQ) -->
+        <div class="hw-card" id="card-5">
+            <span class="card-badge">TASK 4: CAUSE & EFFECT</span>
+            <h2>The Magic Word</h2>
+            <p>What verb do we use to say that stress creates a problem?</p>
+            <p style="font-size:1.5rem; text-align:center;">"Stress _____ fatigue."</p>
+            <div class="options-list" data-attempts="0">
+                <button class="opt-btn" onclick="genericCorrectHW(this, false)"><i class="fa-solid fa-xmark"></i> lives</button>
+                <button class="opt-btn" onclick="genericCorrectHW(this, true, 'btn-c5')"><i class="fa-solid fa-check"></i> causes</button>
+                <button class="opt-btn" onclick="genericCorrectHW(this, false)"><i class="fa-solid fa-xmark"></i> needs</button>
+            </div>
+            <button class="btn-start" id="btn-c5" style="display:none;" onclick="completeCard('card-5', 'card-6')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 5 (Bug Hunt) -->
+        <div class="hw-card" id="card-6">
+            <span class="card-badge">TASK 5: BUG HUNT</span>
+            <h2>Find the Mistake</h2>
+            <p>Tap the <strong>INCORRECT</strong> word. "Cortisol" acts like "It".</p>
+            <div class="bug-sentence">
+                <span class="bug-word" onclick="catchBug(this, false)">Cortisol</span> 
+                <span class="bug-word" onclick="catchBug(this, true, 'makes', 'bug-fb-6', 'btn-c6')">make</span> 
+                <span class="bug-word" onclick="catchBug(this, false)">me</span> 
+                <span class="bug-word" onclick="catchBug(this, false)">hungry.</span>
+            </div>
+            <p id="bug-fb-6" style="color: var(--correct); font-weight: bold; font-size: 1rem; display: none; text-align: center;"><i class="fa-solid fa-check-circle"></i> Spot on! "Cortisol MAKES me hungry."</p>
+            <button class="btn-start" id="btn-c6" style="display:none;" onclick="completeCard('card-6', 'card-7')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 6 (Cloze) -->
+        <div class="hw-card" id="card-7">
+            <span class="card-badge">TASK 6: RECONSTRUCTION</span>
+            <h2>Food & Mood</h2>
+            <div class="reading-box">
+                Stress increases my <span class="blank-space" data-target="appetite" onclick="fillBlank(this, 'btn-c7')"></span>.
+            </div>
+            <div class="word-pool">
+                <button class="pool-chip" onclick="selectChip(this)">appetite</button>
+                <button class="pool-chip" onclick="selectChip(this)">sleep</button>
+                <button class="pool-chip" onclick="selectChip(this)">brain</button>
+            </div>
+            <button class="btn-start" id="btn-c7" style="display:none;" onclick="completeCard('card-7', 'card-8')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 7 (MCQ) -->
+        <div class="hw-card" id="card-8">
+            <span class="card-badge">TASK 7: CAUSE & EFFECT</span>
+            <h2>Giving Reasons</h2>
+            <p>Complete the sentence: "I sleep _____ I am tired."</p>
+            <div class="options-list" data-attempts="0">
+                <button class="opt-btn" onclick="genericCorrectHW(this, true, 'btn-c8')"><i class="fa-solid fa-link"></i> because</button>
+                <button class="opt-btn" onclick="genericCorrectHW(this, false)"><i class="fa-solid fa-link"></i> causes</button>
+                <button class="opt-btn" onclick="genericCorrectHW(this, false)"><i class="fa-solid fa-link"></i> makes</button>
+            </div>
+            <button class="btn-start" id="btn-c8" style="display:none;" onclick="completeCard('card-8', 'card-9')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 8 (Bug Hunt) -->
+        <div class="hw-card" id="card-9">
+            <span class="card-badge">TASK 8: BUG HUNT</span>
+            <h2>Find the Mistake</h2>
+            <p>Tap the <strong>INCORRECT</strong> word. The stomach is an organ ("It").</p>
+            <div class="bug-sentence">
+                <span class="bug-word" onclick="catchBug(this, false)">My</span> 
+                <span class="bug-word" onclick="catchBug(this, false)">stomach</span> 
+                <span class="bug-word" onclick="catchBug(this, true, 'digests', 'bug-fb-9', 'btn-c9')">digest</span> 
+                <span class="bug-word" onclick="catchBug(this, false)">food.</span>
+            </div>
+            <p id="bug-fb-9" style="color: var(--correct); font-weight: bold; font-size: 1rem; display: none; text-align: center;"><i class="fa-solid fa-check-circle"></i> Perfect! "My stomach DIGESTS food."</p>
+            <button class="btn-start" id="btn-c9" style="display:none;" onclick="completeCard('card-9', 'card-10')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 9 (Cloze) -->
+        <div class="hw-card" id="card-10">
+            <span class="card-badge">TASK 9: RECONSTRUCTION</span>
+            <h2>Strong Desires</h2>
+            <div class="reading-box">
+                I <span class="blank-space" data-target="crave" onclick="fillBlank(this, 'btn-c10')"></span> sugar when I am sad.
+            </div>
+            <div class="word-pool">
+                <button class="pool-chip" onclick="selectChip(this)">sleep</button>
+                <button class="pool-chip" onclick="selectChip(this)">crave</button>
+                <button class="pool-chip" onclick="selectChip(this)">work</button>
+            </div>
+            <button class="btn-start" id="btn-c10" style="display:none;" onclick="completeCard('card-10', 'card-11')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 10 (MCQ) -->
+        <div class="hw-card" id="card-11">
+            <span class="card-badge">TASK 10: VOCABULARY</span>
+            <h2>Food & Mood</h2>
+            <p>Pizza and ice cream are examples of what kind of food?</p>
+            <div class="options-list" data-attempts="0">
+                <button class="opt-btn" onclick="genericCorrectHW(this, false)"><i class="fa-solid fa-apple-whole"></i> Healthy food</button>
+                <button class="opt-btn" onclick="genericCorrectHW(this, true, 'btn-c11')"><i class="fa-solid fa-pizza-slice"></i> Comfort food</button>
+                <button class="opt-btn" onclick="genericCorrectHW(this, false)"><i class="fa-solid fa-carrot"></i> Diet food</button>
+            </div>
+            <button class="btn-start" id="btn-c11" style="display:none;" onclick="completeCard('card-11', 'card-12')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 11 (Bug Hunt) -->
+        <div class="hw-card" id="card-12">
+            <span class="card-badge">TASK 11: BUG HUNT</span>
+            <h2>Find the Mistake</h2>
+            <p>Tap the <strong>INCORRECT</strong> word. We need the adjective form for feelings!</p>
+            <div class="bug-sentence">
+                <span class="bug-word" onclick="catchBug(this, false)">He</span> 
+                <span class="bug-word" onclick="catchBug(this, false)">is</span> 
+                <span class="bug-word" onclick="catchBug(this, true, 'stressed', 'bug-fb-12', 'btn-c12')">stress</span> 
+                <span class="bug-word" onclick="catchBug(this, false)">about</span>
+                <span class="bug-word" onclick="catchBug(this, false)">the</span>
+                <span class="bug-word" onclick="catchBug(this, false)">test.</span>
+            </div>
+            <p id="bug-fb-12" style="color: var(--correct); font-weight: bold; font-size: 1rem; display: none; text-align: center;"><i class="fa-solid fa-check-circle"></i> Spot on! "Stress" is the noun. "Stressed" is the feeling.</p>
+            <button class="btn-start" id="btn-c12" style="display:none;" onclick="completeCard('card-12', 'card-13')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 12 (Cloze) -->
+        <div class="hw-card" id="card-13">
+            <span class="card-badge">TASK 12: RECONSTRUCTION</span>
+            <h2>The Body</h2>
+            <div class="reading-box">
+                My <span class="blank-space" data-target="brain" onclick="fillBlank(this, 'btn-c13')"></span> thinks and controls my body.
+            </div>
+            <div class="word-pool">
+                <button class="pool-chip" onclick="selectChip(this)">brain</button>
+                <button class="pool-chip" onclick="selectChip(this)">stomach</button>
+                <button class="pool-chip" onclick="selectChip(this)">heart</button>
+            </div>
+            <button class="btn-start" id="btn-c13" style="display:none;" onclick="completeCard('card-13', 'card-14')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 13 (MCQ) -->
+        <div class="hw-card" id="card-14">
+            <span class="card-badge">TASK 13: CAUSE & EFFECT</span>
+            <h2>Making Connections</h2>
+            <p>Complete the sentence: "Stress _____ headaches."</p>
+            <div class="options-list" data-attempts="0">
+                <button class="opt-btn" onclick="genericCorrectHW(this, true, 'btn-c14')"><i class="fa-solid fa-bolt"></i> causes</button>
+                <button class="opt-btn" onclick="genericCorrectHW(this, false)"><i class="fa-solid fa-bolt"></i> makes me</button>
+                <button class="opt-btn" onclick="genericCorrectHW(this, false)"><i class="fa-solid fa-bolt"></i> because</button>
+            </div>
+            <button class="btn-start" id="btn-c14" style="display:none;" onclick="completeCard('card-14', 'card-15')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 14 (Bug Hunt) -->
+        <div class="hw-card" id="card-15">
+            <span class="card-badge">TASK 14: BUG HUNT</span>
+            <h2>Find the Mistake</h2>
+            <p>Tap the <strong>INCORRECT</strong> word. The word used for "Porquê" is wrong.</p>
+            <div class="bug-sentence">
+                <span class="bug-word" onclick="catchBug(this, false)">I</span> 
+                <span class="bug-word" onclick="catchBug(this, false)">eat</span> 
+                <span class="bug-word" onclick="catchBug(this, false)">pizza</span> 
+                <span class="bug-word" onclick="catchBug(this, true, 'because', 'bug-fb-15', 'btn-c15')">cause</span>
+                <span class="bug-word" onclick="catchBug(this, false)">I</span>
+                <span class="bug-word" onclick="catchBug(this, false)">am</span>
+                <span class="bug-word" onclick="catchBug(this, false)">sad.</span>
+            </div>
+            <p id="bug-fb-15" style="color: var(--correct); font-weight: bold; font-size: 1rem; display: none; text-align: center;"><i class="fa-solid fa-check-circle"></i> Exactly! In written English, always use "BECAUSE".</p>
+            <button class="btn-start" id="btn-c15" style="display:none;" onclick="completeCard('card-15', 'card-16')">CONTINUE</button>
+        </div>
+
+        <!-- TASK 15 (Cloze Double) -->
+        <div class="hw-card" id="card-16">
+            <span class="card-badge">TASK 15: FINAL BOSS</span>
+            <h2>Complete the Sentences</h2>
+            <p>Fill BOTH blanks to finish your mission.</p>
+            <div class="reading-box">
+                "Stress <span class="blank-space" data-target="causes" onclick="fillBlank(this, 'btn-c16')"></span> headaches. It <span class="blank-space" data-target="makes" onclick="fillBlank(this, 'btn-c16')"></span> me tired."
+            </div>
+            <div class="word-pool">
+                <button class="pool-chip" onclick="selectChip(this)">because</button>
+                <button class="pool-chip" onclick="selectChip(this)">causes</button>
+                <button class="pool-chip" onclick="selectChip(this)">makes</button>
+            </div>
+            <button class="btn-start" id="btn-c16" style="display:none;" onclick="completeCard('card-16', 'card-17')">FINISH MISSION</button>
+        </div>
+
+        <!-- CARD 17: MISSION COMPLETE -->
+        <div class="hw-card" id="card-17" style="text-align: center; border-color: var(--correct); border-top-color: var(--correct);">
+            <span class="card-badge" style="background: var(--correct); color: #000;">MISSION COMPLETE</span>
+            <i class="fa-solid fa-heart-pulse" style="font-size: 5rem; color: var(--accent); margin: 20px 0; filter: drop-shadow(0 0 20px var(--accent-glow));"></i>
+            <h2 style="color: var(--correct); font-size: 2.5rem;">PERFECT!</h2>
+            <p style="color: #fff; font-weight: 600;">You earned +1500 XP.</p>
+            <p style="font-size: 1rem;">O teu conhecimento sobre o corpo e as estruturas de causa e efeito está excelente. Parabéns!</p>
+            <button class="btn-start" style="background: rgba(255,255,255,0.1); color: #fff; box-shadow: none;" onclick="window.scrollTo(0,0)">BACK TO TOP</button>
+        </div>
+
+    </main>
+
+    <script>
+        // --- Core Navigation ---
+        function completeCard(currentId, nextId) {
+            const currentCard = document.getElementById(currentId);
+            const nextCard = document.getElementById(nextId);
+            
+            // Mark current as complete
+            currentCard.classList.add('completed');
+            
+            // Hide the continue button to keep UI clean after completion
+            const btn = currentCard.querySelector('.btn-start');
+            if(btn && currentId !== 'card-1') btn.style.display = 'none';
+
+            // Show next card
+            if (nextCard) {
+                nextCard.style.display = 'flex';
+                // Small timeout to allow display:flex to apply before opacity transition
+                setTimeout(() => {
+                    nextCard.classList.add('active');
+                    // Scroll to the new card
+                    nextCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 50);
+
+                // Trigger confetti on the last card
+                if (nextId === 'card-17') {
+                    shootConfetti();
+                }
+            }
+        }
+
+        // --- Task Logic: Bug Hunt ---
+        function catchBug(element, isBug, fixText, feedbackId, nextBtnId) {
+            // If already caught, do nothing
+            if(element.parentElement.classList.contains('solved')) return;
+
+            if (isBug) {
+                element.classList.add('caught');
+                element.innerText = fixText;
+                element.parentElement.classList.add('solved');
+                
+                // Unclickable siblings
+                Array.from(element.parentElement.children).forEach(child => {
+                    child.style.pointerEvents = 'none';
+                });
+
+                if(feedbackId) document.getElementById(feedbackId).style.display = 'block';
+                if(nextBtnId) document.getElementById(nextBtnId).style.display = 'block';
+            } else {
+                element.classList.add('wrong-click');
+                setTimeout(() => element.classList.remove('wrong-click'), 400);
+            }
+        }
+
+        // --- Task Logic: Interactive Reading (Cloze) ---
+        let selectedChip = null;
+
+        function selectChip(chip) {
+            // Deselect previous globally
+            if (selectedChip) selectedChip.classList.remove('selected');
+            selectedChip = chip;
+            chip.classList.add('selected');
+        }
+
+        function fillBlank(blank, nextBtnId) {
+            if (!selectedChip) {
+                // Feedback if tapped blank without chip
+                blank.style.borderColor = 'var(--incorrect)';
+                setTimeout(() => blank.style.borderColor = 'var(--accent)', 300);
+                return;
+            }
+
+            const targetWord = blank.getAttribute('data-target');
+            const selectedWord = selectedChip.innerText;
+
+            if (targetWord === selectedWord) {
+                // Correct
+                blank.innerText = selectedWord;
+                blank.classList.add('filled');
+                blank.style.pointerEvents = 'none';
+                
+                selectedChip.classList.remove('selected');
+                selectedChip.classList.add('used');
+                selectedChip = null;
+
+                // Check if all blanks in this specific reading box are filled
+                const box = blank.closest('.reading-box');
+                const allBlanks = box.querySelectorAll('.blank-space');
+                const allFilled = Array.from(allBlanks).every(b => b.classList.contains('filled'));
+                
+                if (allFilled && nextBtnId) {
+                    document.getElementById(nextBtnId).style.display = 'block';
+                }
+            } else {
+                // Wrong
+                blank.style.borderColor = 'var(--incorrect)';
+                blank.style.color = 'var(--incorrect)';
+                setTimeout(() => {
+                    blank.style.borderColor = 'var(--accent)';
+                    blank.style.color = 'var(--accent)';
+                }, 400);
+            }
+        }
+
+        // --- Task Logic: Multiple Choice ---
+        function genericCorrectHW(btn, isCorrect, nextBtnId) {
+            const parent = btn.parentElement;
+            if (parent.classList.contains('solved')) return; // Prevent clicking after solve
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                parent.classList.add('solved');
+                
+                // Disable other buttons
+                Array.from(parent.children).forEach(child => {
+                    child.style.pointerEvents = 'none';
+                    if (child !== btn) child.style.opacity = '0.5';
+                });
+
+                if (nextBtnId) document.getElementById(nextBtnId).style.display = 'block';
+            } else {
+                btn.classList.add('error');
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.5';
+            }
+        }
+
+        // --- Confetti Effect ---
+        function shootConfetti() {
+            const colors = ['#0ea5e9', '#38bdf8', '#ffffff', '#10b981'];
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = -10 + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                confetti.style.animationDelay = Math.random() + 's';
+                document.body.appendChild(confetti);
+                
+                // Cleanup
+                setTimeout(() => confetti.remove(), 5000);
+            }
+        }
+    </script>
+</body>
+</html>
